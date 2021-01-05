@@ -1,0 +1,338 @@
+[12/14/20 6:07 PM] Shanmugapriya Gurunathan
+    
+
+
+
+varexpress = require('express');
+varrouter = express.Router();
+constsql = require('mssql')
+constpath = require('path');
+constFileUpload = require('./common');
+//database connection
+varconnection = require('./db_connection');
+constPACKAGE = require('./package.json')
+constmodCommon = require('./modcommon');
+constcommon = require('./common');
+ 
+router.post('/getSupertitle', function (req, res, next) {​​​​​​​​
+try {​​​​​​​​
+sql.connect(connection.config()).then(pool=> {​​​​​​​​
+ 
+returnpool.request()
+                .query("SELECT * FROM SC_mstSupertitle where islock='N'")
+        }​​​​​​​​).then(result=> {​​​​​​​​
+//sql.close();
+res.send(result.recordsets[0]);
+        }​​​​​​​​).catch(err=> {​​​​​​​​
+// ... error checks
+res.send(err);
+        }​​​​​​​​);
+ 
+    }​​​​​​​​ catch (e) {​​​​​​​​
+console.log("getCloneOf", e.Message)
+    }​​​​​​​​
+}​​​​​​​​);
+ 
+//Delete
+router.post('/deleteSuperTitle', function (req, res, next) {​​​​​​​​
+try {​​​​​​​​
+console.log("ed",req.body.Temp_ID)
+sql.connect(connection.config()).then(pool=> {​​​​​​​​
+returnpool.request()
+                .query(`UPDATE SC_mstSupertitle SET islock='Y' WHERE id='${​​​​​​​​req.body.Temp_ID}​​​​​​​​'`)
+        }​​​​​​​​).then(result=> {​​​​​​​​
+//sql.close();
+res.send(result.recordsets[0]);
+        }​​​​​​​​).catch(err=> {​​​​​​​​
+// ... error checks
+res.send(err);
+        }​​​​​​​​);
+ 
+    }​​​​​​​​ catch (e) {​​​​​​​​
+console.log("gettemplateddetails", e.Message)
+    }​​​​​​​​
+}​​​​​​​​);
+
+
+​[12/14/20 6:08 PM] Shanmugapriya Gurunathan
+    
+
+
+
+//edit
+router.post('/editSuperTitle', function (req, res, next) {​​​​​​​​
+try {​​​​​​​​
+ 
+        (async () => {​​​​​​​​
+try {​​​​​​​​
+constpool = awaitsql.connect(connection.config());
+ 
+try {​​​​​​​​
+consttransaction = pool.transaction();
+awaittransaction.begin();
+constrequest = newsql.Request(transaction)
+ 
+// const pool = await sql.connect(connection.config);
+// const request = new sql.Request(pool);
+consttitle = req.body.currentRow;
+varoldRecord = awaitrequest.query(`select * from  SC_mstSupertitle where islock='N' and id!= ${​​​​​​​​title.supertitle}​​​​​​​​`)
+varRecordValues = oldRecord.recordset;
+varisPresent = false;
+ 
+if (RecordValues.length > 0) {​​​​​​​​
+for (leti = 0; i < RecordValues.length; i++) {​​​​​​​​
+if (RecordValues[i].supertitle == title.supertitle) {​​​​​​​​
+isPresent = true;
+                            }​​​​​​​​
+                        }​​​​​​​​
+                    }​​​​​​​​
+//   console.log("isPresent",isPresent)
+if (!isPresent) {​​​​​​​​
+ 
+varresult = awaitrequest.query(`UPDATE SC_mstSupertitle SET supertitle ='${​​​​​​​​title.supertitle}​​​​​​​​'}​​​​​​​​'
+                        WHERE TemplateID = ${​​​​​​​​title.id}​​​​​​​​`)
+awaittransaction.commit(err=> {​​​​​​​​ }​​​​​​​​)
+pool.close();
+ 
+res.send({​​​​​​​​
+success:true,
+data:result.recordset,
+Message:"record updated successfully."
+                        }​​​​​​​​);
+                    }​​​​​​​​ else {​​​​​​​​
+pool.close()
+res.send({​​​​​​​​
+success:false,
+Message:"super title already exists."
+                        }​​​​​​​​);
+                    }​​​​​​​​
+                }​​​​​​​​ catch (e) {​​​​​​​​
+console.log("err", e)
+pool.close()
+res.send({​​​​​​​​
+success:false,
+Message:"update failed."
+                    }​​​​​​​​);
+                }​​​​​​​​
+            }​​​​​​​​ catch (error) {​​​​​​​​
+res.send({​​​​​​​​
+success:false,
+Message:"Connection failed."
+                }​​​​​​​​);
+            }​​​​​​​​
+ 
+        }​​​​​​​​)()
+
+
+
+
+
+ 
+    }​​​​​​​​ catch (e) {​​​​​​​​
+console.log("editSuperTitle", e.Message)
+    }​​​​​​​​
+}​​​​​​​​);
+
+
+​[12/14/20 6:08 PM] Shanmugapriya Gurunathan
+    
+
+router.post('/AddNewTitle', function (req, res, next) {​​​​​​​​
+letdata = req.body;
+    (asyncfunction () {​​​​​​​​
+ 
+try {​​​​​​​​
+constpool = awaitsql.connect(connection.config());
+ 
+try {​​​​​​​​
+consttransaction = pool.transaction();
+awaittransaction.begin();
+constrequest = newsql.Request(transaction)
+ 
+varoldRecord = awaitrequest.query(`select * from  SC_mstSupertitle where islock='N'`)
+varRecordValues = oldRecord.recordset;
+varisPresent = false;
+ 
+if (RecordValues.length > 0) {​​​​​​​​
+for (leti = 0; i < RecordValues.length; i++) {​​​​​​​​
+if (RecordValues[i].supertitle == data.supertitle) {​​​​​​​​
+isPresent = true;
+                        }​​​​​​​​
+                    }​​​​​​​​
+                }​​​​​​​​
+ 
+if (!isPresent) {​​​​​​​​
+varresult = awaitrequest.query(`INSERT INTO SC_mstSupertitle(supertitle,isLock) values ('${​​​​​​​​data.supertitle}​​​​​​​​','N'); `)
+
+                }​​​​​​​​ else {​​​​​​​​
+pool.close()
+res.send({​​​​​​​​
+success:false,
+Message:"Super title already exists."
+                    }​​​​​​​​);
+                }​​​​​​​​
+            }​​​​​​​​ catch (e) {​​​​​​​​
+pool.close()
+res.send({​​​​​​​​
+success:false,
+Message:"Insertion failed."
+                }​​​​​​​​);
+            }​​​​​​​​
+        }​​​​​​​​ catch (error) {​​​​​​​​
+res.send({​​​​​​​​
+success:false,
+Message:"Connection failed."
+            }​​​​​​​​);
+        }​​​​​​​​
+    }​​​​​​​​)()
+}​​​​​​​​);
+module.exports = router;
+
+​[12/14/20 6:08 PM] Shanmugapriya Gurunathan
+    for my reference da
+​[12/14/20 6:09 PM] Shanmugapriya Gurunathan
+    
+
+constexpress = require('express');
+constbodyParser = require('body-parser');
+ 
+varapp = express();
+vartemplateDetails = require('./templateDetails');
+varuserdetails = require('./userDetails');
+varmenudetails = require('./menudetails');
+vartemplateHistory = require('./templatehistory');
+varqerydetails = require('./queryGeneration');
+varrefRestructure = require('./referenceRestructuring');
+varjournalvaiant = require('./interactJourVariant');
+varsupertitle = require('./supertitle');
+ 
+//const baseserverpath = '/ipubeditdb';
+//const baseserverpath = '';
+app.use(bodyParser.urlencoded({​​​​​​​​
+extended:true,
+limit:'50mb'
+}​​​​​​​​));
+app.use(bodyParser.json({​​​​​​​​
+limit:'50mb'
+}​​​​​​​​));
+app.all('/*', function (req, res, next) {​​​​​​​​
+res.header("Access-Control-Allow-Origin", "*");
+res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
+next();
+}​​​​​​​​);
+ 
+app.use('/ipubeditdb/templatedetails', templateDetails);
+app.use('/ipubeditdb/', userdetails);
+app.use('/ipubeditdb/', menudetails);
+app.use('/ipubeditdb/templatehistory', templateHistory);
+app.use('/ipubeditdb/', qerydetails);
+app.use('/ipubeditdb/', refRestructure);
+app.use('/ipubeditdb/', journalvaiant);
+app.use('/ipubeditdb/', supertitle);
+ 
+app.get('/ipubeditdb/', function (req, res) {​​​​​​​​
+res.send('Express is working on IISNode!');
+}​​​​​​​​);
+ 
+// app.get('/Checklogin', function (req, res) {​​​​​​​​
+//     let username = req.body.uname;
+//     let password = req.body.pwd;
+//     request.post({​​​​​​​​
+//         url: 'http://172.16.200.227:88/user_login/service.php',
+//         form: {​​​​​​​​
+//             user: username,
+//             pass: password
+//         }​​​​​​​​
+//     }​​​​​​​​, function (error, response, body) {​​​​​​​​
+//         if (body != 'Invalid') {​​​​​​​​
+//             var jsonArr = JSON.parse(body);
+//             userid = jsonArr.userid;
+//             res.send(jsonArr);
+//         }​​​​​​​​ else {​​​​​​​​
+//             res.send('Please check your login credentials');
+//             res.end();
+//         }​​​​​​​​
+//     }​​​​​​​​);
+ 
+// }​​​​​​​​);
+ 
+letport = process.env.PORT || 5555;
+console.log(port);
+app.listen(port);
+
+​[12/14/20 6:09 PM] Shanmugapriya Gurunathan
+    server
+​[12/14/20 6:10 PM] Shanmugapriya Gurunathan
+    send ur id and system password da
+​[12/14/20 6:11 PM] Shanmugapriya Gurunathan
+    
+
+
+
+comparejson(obj1, obj2) {​​​​​​​​
+letJson1 = flatten(obj1);
+letJson2 = flatten(obj2);
+constobj1Keys = Object.keys(Json1);
+constobj1Values = Object.values(Json1);
+constobj2Keys = Object.keys(Json2);
+constobj2Values = Object.values(Json2);
+ 
+if (obj1Keys.length == obj2Keys.length) {​​​​​​​​
+for (leti = 0; i < obj2Keys.length; i++) {​​​​​​​​
+letres = obj1Keys.filter((el) => {​​​​​​​​
+returnel == obj2Keys[i];
+                }​​​​​​​​)
+if (res == undefined || res.length == 0 || res == null) {​​​​​​​​
+letitemlist = obj2Keys[i].split(".");
+if (itemlist.length == 1) {​​​​​​​​
+obj1[itemlist[0]] = obj2Values[i];
+                    }​​​​​​​​ else {​​​​​​​​
+varnewobject = undefined;
+for (letj = 0; j < itemlist.length - 1; j++) {​​​​​​​​
+if (itemlist[j] != undefined)
+newobject = newobject == undefined ? obj1[itemlist[j]] : newobject[itemlist[j]]
+                        }​​​​​​​​
+newobject[itemlist[itemlist.length - 1]] = obj2Values[i];
+                    }​​​​​​​​
+letolditemlist = obj1Keys[i].split(".");
+if (olditemlist.length == 1) {​​​​​​​​
+deleteobj1[olditemlist[j]];
+                    }​​​​​​​​ else {​​​​​​​​
+varoldobject = undefined;
+for (letj = 0; j < olditemlist.length - 1; j++) {​​​​​​​​
+if (olditemlist[j] != undefined)
+oldobject = oldobject == undefined ? obj1[olditemlist[j]] : oldobject[olditemlist[j]]
+                        }​​​​​​​​
+deleteoldobject[olditemlist[olditemlist.length - 1]]
+                    }​​​​​​​​
+                }​​​​​​​​
+            }​​​​​​​​
+        }​​​​​​​​
+
+
+​[12/14/20 6:12 PM] Shanmugapriya Gurunathan
+    
+
+else {​​​​​​​​
+for (leti = 0; i < obj2Keys.length; i++) {​​​​​​​​
+letres = obj1Keys.filter((el) => {​​​​​​​​
+returnel == obj2Keys[i];
+                }​​​​​​​​)
+if (res == undefined || res.length == 0 || res == null) {​​​​​​​​
+letitemlist = obj2Keys[i].split(".");
+if (itemlist.length == 1) {​​​​​​​​
+obj1[itemlist[0]] = obj2Values[i];
+                    }​​​​​​​​ else {​​​​​​​​
+varnewobject = undefined;
+for (letj = 0; j < itemlist.length - 1; j++) {​​​​​​​​
+if (itemlist[j] != undefined)
+newobject = newobject == undefined ? obj1[itemlist[j]] : newobject[itemlist[j]]
+                        }​​​​​​​​
+newobject[itemlist[itemlist.length - 1]] = obj2Values[i];
+                    }​​​​​​​​
+                }​​​​​​​​
+            }​​​​​​​​
+        }​​​​​​​​
+returnobj1;
+    }​​​​​​​​,
+
